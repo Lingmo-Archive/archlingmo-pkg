@@ -1,4 +1,4 @@
-name: Build ISO Image
+name: Build Packages
 
 on:
   push:
