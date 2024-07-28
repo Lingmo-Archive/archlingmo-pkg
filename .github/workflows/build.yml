@@ -32,7 +32,7 @@ jobs:
         docker run --rm --privileged -v $PWD/output:/builder/output -v $PWD/pkg:/var/cache/pacman/pkg archlinux sh -c "
           pacman-key --init
           pacman-key --populate archlinux
-          pacman -Syu --noconfirm base-devel
+          pacman -Syu --noconfirm base-devel git
           git clone --depth 1 https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /builder && \
           cd /builder && ./build.sh
         "
