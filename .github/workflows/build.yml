@@ -29,14 +29,14 @@ jobs:
       
     - name: Run builder
       run: |
-        docker run --rm --privileged -v $PWD/output:/builder/output -v $PWD/pkg:/var/cache/pacman/pkg archlinux sh -c "
+        docker run --rm --privileged -v $PWD/out:/out -v $PWD/pkg:/var/cache/pacman/pkg archlinux sh -c "
           pacman-key --init
           pacman-key --populate archlinux
           pacman -Syu --noconfirm base-devel git
-          git clone --depth 1 --no-checkout https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /builder && \
+          git clone --depth 1 https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /builder && \
           cd /builder
-          git checkout
           ./build.sh
+          cp output/* /out
         "
 
     - name: List contents
@@ -47,4 +47,4 @@ jobs:
       with:
         name: packages
         compression-level: 0
-        path: ./output/*
+        path: ./out/*
