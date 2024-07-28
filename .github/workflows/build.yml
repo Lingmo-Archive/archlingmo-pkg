@@ -1,0 +1,48 @@
+name: Build ISO Image
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Cache pacman packages
+      id: cache-pacman
+      uses: actions/cache@v4
+      with:
+        path: pkg
+        key: ${{ runner.os }}-pacman-${{ github.sha }}
+        restore-keys: ${{ runner.os }}-pacman-
+
+    - name: Pull Docker image
+      run: docker pull archlinux
+      
+    - name: Run builder
+      run: |
+        docker run --rm --privileged -v $PWD/output:/builder/output -v $PWD/pkg:/var/cache/pacman/pkg archlinux sh -c "
+          pacman-key --init
+          pacman-key --populate archlinux
+          pacman -Syu --noconfirm base-devel
+          git clone --depth 1 https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /builder && \
+          cd /builder && ./build.sh
+        "
+
+    - name: List contents
+      run: ls -lh output
+
+    - name: Upload packages
+      uses: actions/upload-artifact@v4
+      with:
+        name: packages
+        compression-level: 0
+        path: ./output/*
