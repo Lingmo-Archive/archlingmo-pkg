@@ -33,8 +33,10 @@ jobs:
           pacman-key --init
           pacman-key --populate archlinux
           pacman -Syu --noconfirm base-devel git
-          git clone --depth 1 https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /builder && \
-          cd /builder && ./build.sh
+          git clone --depth 1 --no-checkout https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /builder && \
+          cd /builder
+          git checkout
+          ./build.sh
         "
 
     - name: List contents
