@@ -35,9 +35,10 @@ jobs:
           pacman -Syu --noconfirm base-devel git
           useradd -m builder
           echo 'builder ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/01_builder
-          sudo -u builder git clone --depth 1 https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /tmp/builder
-          sudo -u builder sh -c 'cd /tmp/builder && ./build.sh'
-          cp /tmp/builder/outputs/* /out
+          git clone --depth 1 https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /builder
+          chown -R builder /builder
+          sudo -u builder sh -c 'cd /builder && ./build.sh'
+          cp /builder/outputs/* /out
         "
 
     - name: List packages
