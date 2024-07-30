@@ -51,6 +51,7 @@ jobs:
         path: ./out/*
 
   deploy:
+    needs: build
     permissions:
       pages: write
       id-token: write
