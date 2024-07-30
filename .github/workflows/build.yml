@@ -60,27 +60,26 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Create packages/x86_64
-        run: mkdir -pv packages/x86_64
-
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          path: packages/x86_64
+          path: packages
 
       - name: Pull Docker image
         run: docker pull archlinux
 
       - name: Build repository
         run: |
-          docker run --rm -v $PWD/packages/x86_64:/repo archlinux sh -c "
-            repo-add /repo/lingmo.db.tar.gz /repo/*.pkg.tar.zst
+          docker run --rm -v $PWD/packages:/packages -v $PWD/repo:/repo archlinux sh -c "
+            mkdir -pv /repo/x86_64
+            cp /packages/*.pkg.tar.zst /repo/x86_64
+            repo-add /repo/x86_64/lingmo.db.tar.gz /repo/x86_64/*.pkg.tar.zst
           "
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: packages
+          path: repo
 
       - name: Deploy to GitHub Pages
         id: deployment
