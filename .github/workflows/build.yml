@@ -62,13 +62,15 @@ jobs:
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v4
+        with:
+          path: packages/x86_64
 
       - name: Pull Docker image
         run: docker pull archlinux
 
       - name: Build repository
         run: |
-          docker run --rm -v $PWD/packages:/repo archlinux sh -c "
+          docker run --rm -v $PWD/packages/x86_64:/repo archlinux sh -c "
             repo-add /repo/lingmo.db.tar.gz /repo/*.pkg.tar.zst
           "
 
