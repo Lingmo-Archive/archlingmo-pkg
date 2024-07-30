@@ -60,6 +60,9 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
+      - name: Create packages/x86_64
+        run: mkdir -pv packages/x86_64
+
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
