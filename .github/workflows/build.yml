@@ -51,7 +51,6 @@ jobs:
         path: ./out/*
 
   deploy:
-    needs: build
     permissions:
       pages: write
       id-token: write
@@ -63,7 +62,7 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          path: packages
+          path: .
 
       - name: Pull Docker image
         run: docker pull archlinux
