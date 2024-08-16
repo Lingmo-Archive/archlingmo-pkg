@@ -3,13 +3,13 @@ pkgname=lingmo-texteditor
 arch=("x86_64")
 depends=(
     "qt5-base"
-    "qt5-quickcontrols2"
+    "qt5-quickcontrols"
     "qt5-tools"
     "syntax-highlighting5"
 )
 makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf" "syntax-highlighting5")
 pkgdesc="An easy-to-use and aesthetically pleasing text editor for Lingmo OS."
-pkgrel=0
+pkgrel=1
 pkgver=2.0.0
 url="https://lingmo.org"
 license=("GPL")
