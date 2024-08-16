@@ -1,0 +1,34 @@
+# Maintainer: Intro <intro-iu@outlook.com>
+pkgname=lingmo-dock
+arch=("x86_64")
+depends=(
+    "kwindowsystem5"
+    "qt5-quickcontrols2"
+    "qt5-x11extras"
+    "qt5-tools"
+)
+makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf")
+pkgdesc="The program dock component of LngmoOS, which relies on LingmoUI."
+pkgrel=0
+pkgver=2.0.2
+url="https://lingmo.org"
+license=("GPL")
+source=("https://github.com/LingmoOS/${pkgname}/archive/refs/tags/${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname}-${pkgver}"
+}
+
+build() {
+    echo "Compiling $pkgname"
+    mkdir -pv "$srcdir/${pkgname}-${pkgver}/build" && cd "$srcdir/${pkgname}-${pkgver}/build"
+    cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    make -j$(nproc) || return 1
+}
+
+package() {
+    mkdir -pv "$pkgdir"
+    cd "$srcdir/${pkgname}-${pkgver}/build"
+    make DESTDIR="$pkgdir" install
+}

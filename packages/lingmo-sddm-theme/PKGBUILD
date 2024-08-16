@@ -1,0 +1,29 @@
+# Maintainer: Intro <intro-iu@outlook.com>
+pkgname=lingmo-sddm-theme
+arch=("x86_64")
+depends=()
+makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf")
+pkgdesc="SDDM theme of LingmoOS"
+pkgrel=0
+pkgver=1.9.9
+url="https://lingmo.org"
+license=("GPL")
+source=("https://github.com/LingmoOS/${pkgname}/archive/refs/tags/${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname}-${pkgver}"
+}
+
+build() {
+    echo "Compiling $pkgname"
+    mkdir -pv "$srcdir/${pkgname}-${pkgver}/build" && cd "$srcdir/${pkgname}-${pkgver}/build"
+    cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    make -j$(nproc) || return 1
+}
+
+package() {
+    mkdir -pv "$pkgdir"
+    cd "$srcdir/${pkgname}-${pkgver}/build"
+    make DESTDIR="$pkgdir" install
+}

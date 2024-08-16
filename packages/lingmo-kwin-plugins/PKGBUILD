@@ -1,0 +1,31 @@
+# Maintainer: chun-awa <chun-awa@itcdt.top>
+pkgname=lingmo-kwin-plugins
+arch=("x86_64")
+depends=('kwin' 'qt5-base' 'qt5-declarative' 'kconfig' 'kdecoration' 'kguiaddons' 'kcoreaddons' 'kconfigwidgets' 'kwindowsystem' 'kwayland')
+makedepends=('cmake' 'extra-cmake-modules' 'git')
+pkgdesc="KWin plugin for LingmoOS"
+pkgrel=1
+pkgver=1.2.0
+_realver=1.2.0-1
+
+url="https://lingmo.org"
+license=("GPL")
+source=("https://github.com/LingmoOS/${pkgname}/archive/refs/tags/${_realver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname}-${_realver}"
+}
+
+build() {
+    echo "Compiling $pkgname"
+    mkdir -pv "$srcdir/${pkgname}-${_realver}/build" && cd "$srcdir/${pkgname}-${_realver}/build"
+    cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    make -j$(nproc) || return 1
+}
+
+package() {
+    mkdir -pv "$pkgdir"
+    cd "$srcdir/${pkgname}-${_realver}/build"
+    make DESTDIR="$pkgdir" install
+}

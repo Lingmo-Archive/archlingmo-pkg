@@ -31,11 +31,11 @@ jobs:
           pacman-key --populate archlinux
           pacman -Syu --noconfirm base-devel git
           useradd -m builder
-          echo 'builder ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/01_builder
-          git clone --depth 1 https://github.com/LingmoOS-Testing/lingmo-arch-pkgbuilder /builder
+          echo 'builder ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
+          git clone --depth 1 https://github.com/LingmoOS/archlingmo-pkg /builder
           chown -R builder /builder
-          sudo -u builder sh -c 'cd /builder && ./build.sh'
-          cp /builder/outputs/* /out
+          sudo -u builder sh -c 'cd /builder/packages && ./build.sh'
+          cp /builder/packages/outputs/* /out
         "
 
     - name: List packages

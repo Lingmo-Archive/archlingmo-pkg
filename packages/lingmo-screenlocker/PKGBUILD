@@ -1,0 +1,31 @@
+# Maintainer: Intro <intro-iu@outlook.com>
+pkgname=lingmo-screenlocker
+arch=("x86_64")
+depends=("qt5-base" "qt5-declarative" "qt5-x11extras" "dbus" "libx11")
+makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf")
+pkgdesc="Screenlocker of LingmoOS"
+pkgrel=0
+pkgver=2.0.0
+_realver=2.0.0-0
+
+url="https://lingmo.org"
+license=("GPL")
+source=("https://github.com/LingmoOS/${pkgname}/archive/refs/tags/${_realver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname}-${_realver}"
+}
+
+build() {
+    echo "Compiling $pkgname"
+    mkdir -pv "$srcdir/${pkgname}-${_realver}/build" && cd "$srcdir/${pkgname}-${_realver}/build"
+    cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    make -j$(nproc) || return 1
+}
+
+package() {
+    mkdir -pv "$pkgdir"
+    cd "$srcdir/${pkgname}-${_realver}/build"
+    make DESTDIR="$pkgdir" install
+}

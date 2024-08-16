@@ -1,0 +1,33 @@
+# Maintainer: Intro <intro-iu@outlook.com>
+pkgname=lingmo-calculator
+arch=("x86_64")
+depends=(
+    "qt5-tools"
+    "qt5-quickcontrols2"
+)
+makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf")
+pkgdesc="A simple calculator."
+pkgrel=2
+pkgver=0.6.2
+_realver=0.6-2  # Versão real usada no link de download
+url="https://lingmo.org"
+license=("GPL")
+source=("https://github.com/LingmoOS/${pkgname}/archive/refs/tags/${_realver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname}-${_realver}"
+}
+
+build() {
+    echo "Compiling $pkgname"
+    mkdir -pv "$srcdir/${pkgname}-${_realver}/build" && cd "$srcdir/${pkgname}-${_realver}/build"
+    cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    make -j$(nproc) || return 1
+}
+
+package() {
+    mkdir -pv "$pkgdir"
+    cd "$srcdir/${pkgname}-${_realver}/build"
+    make DESTDIR="$pkgdir" install
+}

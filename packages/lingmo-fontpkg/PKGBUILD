@@ -1,0 +1,30 @@
+# Maintainer: Intro <intro-iu@outlook.com>
+pkgname=lingmo-fontpkg
+arch=("x86_64")
+depends=()
+makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf")
+pkgdesc="Lingmo OS Cursor Themes"
+pkgrel=2
+pkgver=1.1.0
+_realver=1.1.0-0
+url="https://lingmo.org"
+license=("GPL")
+source=("https://github.com/LingmoOS-Testing/${pkgname}/archive/refs/tags/${_realver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname}-${_realver}"
+}
+
+build() {
+    echo "Compiling $pkgname"
+    mkdir -pv "$srcdir/${pkgname}-${_realver}/build" && cd "$srcdir/${pkgname}-${_realver}/build"
+    cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    make -j$(nproc) || return 1
+}
+
+package() {
+    mkdir -pv "$pkgdir"
+    cd "$srcdir/${pkgname}-${_realver}/build"
+    make DESTDIR="$pkgdir" install
+}

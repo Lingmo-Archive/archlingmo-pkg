@@ -1,0 +1,31 @@
+# Maintainer: Intro <intro-iu@outlook.com>
+pkgname=lingmo-gtk-themes
+arch=("x86_64")
+depends=()
+makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf")
+pkgdesc="GTK themes for Lingmo OS"
+pkgrel=10
+pkgver=1.9.9
+_realver=1.9.9-10
+
+url="https://lingmo.org"
+license=("GPL")
+source=("https://github.com/LingmoOS/${pkgname}/archive/refs/tags/${_realver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname}-${_realver}"
+}
+
+build() {
+    echo "Compiling $pkgname"
+    mkdir -pv "$srcdir/${pkgname}-${_realver}/build" && cd "$srcdir/${pkgname}-${_realver}/build"
+    cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    make -j$(nproc) || return 1
+}
+
+package() {
+    mkdir -pv "$pkgdir"
+    cd "$srcdir/${pkgname}-${_realver}/build"
+    make DESTDIR="$pkgdir" install
+}

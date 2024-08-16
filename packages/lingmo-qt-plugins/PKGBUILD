@@ -1,0 +1,32 @@
+# Maintainer: Intro <intro-iu@outlook.com>
+pkgname=lingmo-qt-plugins
+arch=("x86_64")
+depends=(
+    "qt5-base" "qt5-tools" "qt5-x11extras" 
+    "libqt5xdg" "libdbusmenu-qt5" "libxcb"
+)
+makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf" "libqt5xdg")
+pkgdesc="Unify Qt application style of LingmoOS."
+pkgrel=0
+pkgver=2.0.0
+url="https://lingmo.org"
+license=("GPL")
+source=("https://github.com/LingmoOS/${pkgname}/archive/refs/tags/${pkgver}.tar.gz")
+sha256sums=('SKIP')
+
+prepare() {
+    cd "$srcdir/${pkgname}-${pkgver}"
+}
+
+build() {
+    echo "Compiling $pkgname"
+    mkdir -pv "$srcdir/${pkgname}-${pkgver}/build" && cd "$srcdir/${pkgname}-${pkgver}/build"
+    cmake -DCMAKE_INSTALL_PREFIX=/usr ..
+    make -j$(nproc) || return 1
+}
+
+package() {
+    mkdir -pv "$pkgdir"
+    cd "$srcdir/${pkgname}-${pkgver}/build"
+    make DESTDIR="$pkgdir" install
+}
