@@ -32,10 +32,10 @@ jobs:
           pacman -Syu --noconfirm base-devel git
           useradd -m builder
           echo 'builder ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
-          git clone --depth 1 https://github.com/LingmoOS/archlingmo-pkg /builder
-          chown -R builder /builder
-          sudo -u builder sh -c 'cd /builder/packages && ./build.sh'
-          cp /builder/packages/outputs/* /out
+          git clone --depth 1 https://github.com/LingmoOS/archlingmo-pkg /archlingmo-pkg
+          chown -R builder /archlingmo-pkg
+          sudo -u builder sh -c 'cd /archlingmo-pkg/packages && ./build.sh'
+          cp /archlingmo-pkg/packages/outputs/* /out
         "
 
     - name: List packages
@@ -46,41 +46,36 @@ jobs:
     - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
-        name: packages
+        name: x86_64
         compression-level: 0
         path: ./out/*
 
-  deploy:
+  upload:
     needs: build
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
-          path: .
+          path: ~/repo
 
-      - name: Pull Docker image
-        run: docker pull archlinux
+      - name: Install pacman
+        run: sudo apt update && sudo apt install pacman-package-manager
 
       - name: Build repository
         run: |
-          docker run --rm -v $PWD/packages:/packages -v $PWD/repo:/repo archlinux sh -c "
-            mkdir -pv /repo/x86_64
-            cp /packages/*.pkg.tar.zst /repo/x86_64
-            repo-add /repo/x86_64/lingmo.db.tar.gz /repo/x86_64/*.pkg.tar.zst
-          "
+          cp -r ~/repo/* .
+          repo-add x86_64/lingmo.db.tar.gz x86_64/*.pkg.tar.zst
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: repo
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Commit and push changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Update: $(date --rfc-3339=seconds)"
+          git push
