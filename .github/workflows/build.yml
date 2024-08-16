@@ -69,8 +69,10 @@ jobs:
 
       - name: Build repository
         run: |
-          cp -r ~/repo/* .
-          repo-add x86_64/lingmo.db.tar.gz x86_64/*.pkg.tar.zst
+          cp -r --update ~/repo/* .
+          for i in $(ls);do
+            [ -d $i ] && repo-add $i/lingmo.db.tar.gz $i/*.pkg.tar.zst
+          done
 
       - name: Commit and push changes
         run: |
