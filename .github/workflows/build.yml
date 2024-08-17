@@ -65,7 +65,7 @@ jobs:
           path: ~/repo
 
       - name: Install pacman
-        run: sudo apt update && sudo apt install pacman-package-manager
+        run: sudo apt update && sudo apt install pacman-package-manager libarchive-tools
 
       - name: Build repository
         run: |
