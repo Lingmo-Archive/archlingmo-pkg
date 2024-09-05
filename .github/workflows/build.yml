@@ -19,7 +19,7 @@ jobs:
         key: ${{ runner.os }}-pacman-${{ github.sha }}
         restore-keys: ${{ runner.os }}-pacman-
 
-    - name: Build Packages
+    - name: Set up build environment
       run: |
         pacman-key --init
         pacman-key --populate archlinux
@@ -27,45 +27,44 @@ jobs:
         useradd -m builder
         echo 'builder ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
         sudo -u builder git clone --depth 1 https://github.com/LingmoOS/archlingmo-pkg /tmp/archlingmo-pkg
-        sudo -u builder sh -c 'cd /tmp/archlingmo-pkg/packages && ./build.sh'
+   
+    - name: Build Packages
+      run: sudo -u builder sh -c 'cd /tmp/archlingmo-pkg/packages && ./build.sh'
 
     - name: List packages
       run: du -ch /tmp/archlingmo-pkg/packages/outputs/*
 
-    - name: Upload packages
+    - name: Checkout gh-pages
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: /gh-pages
+
+    - name: Build repository
+      run: |
+        cd x86_64
+        cp -r --update /tmp/archlingmo-pkg/packages/outputs/* .
+        repo-add lingmo.db.tar.gz *.pkg.tar.zst
+
+    - name: Upload repository
       uses: actions/upload-artifact@v4
       with:
-        name: x86_64
+        name: repo
         compression-level: 0
-        path: /tmp/archlingmo-pkg/packages/outputs/*
+        path: /gh-pages
 
   upload:
     runs-on: ubuntu-latest
-    container: docker.io/library/archlinux:latest
     needs: build
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
           path: ~/repo
 
-      - name: Build repository
-        run: |
-          cp -r --update ~/repo/* .
-          ls -lah
-          ls -lah x86_64
-          pwd
-          for i in $(ls);do
-            [ -d $i ] && repo-add $i/lingmo.db.tar.gz $i/*.pkg.tar.zst
-          done
-
       - name: Commit and push changes
         run: |
+          cd ~/repo
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
