@@ -21,25 +21,22 @@ jobs:
 
     - name: Build Packages
       run: |
-        pacman-key --init
-        pacman-key --populate archlinux
-        pacman -Syu --noconfirm base-devel git
-        useradd -m builder
-        echo 'builder ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
-        git clone --depth 1 https://github.com/LingmoOS/archlingmo-pkg /archlingmo-pkg
-        chown -R builder /archlingmo-pkg
-        sudo -u builder sh -c 'cd /archlingmo-pkg/packages && ./build.sh'
+        sudo pacman-key --init
+        sudo pacman-key --populate archlinux
+        sudo pacman -Syu --noconfirm base-devel git
+        git clone --depth 1 https://github.com/LingmoOS/archlingmo-pkg /tmp/archlingmo-pkg
+        cd /tmp/archlingmo-pkg/packages
+        ./build.sh
 
     - name: List packages
-      run: |
-        du -ch /archlingmo-pkg/packages/outputs/*
+      run: du -ch /tmp/archlingmo-pkg/packages/outputs/*
 
     - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
         name: x86_64
         compression-level: 0
-        path: /archlingmo-pkg/packages/outputs/*
+        path: /tmp/archlingmo-pkg/packages/outputs/*
 
   upload:
     runs-on: ubuntu-latest
