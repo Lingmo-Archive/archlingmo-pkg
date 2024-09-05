@@ -35,14 +35,11 @@ jobs:
       run: du -ch /tmp/archlingmo-pkg/packages/outputs/*
 
     - name: Checkout gh-pages
-      uses: actions/checkout@v4
-      with:
-        ref: gh-pages
-        path: /gh-pages
+      run: git clone --depth 1 --branch gh-pages https://github.com/LingmoOS/archlingmo-pkg /gh-pages
 
     - name: Build repository
       run: |
-        cd x86_64
+        cd /gh-pages/x86_64
         cp -r --update /tmp/archlingmo-pkg/packages/outputs/* .
         repo-add lingmo.db.tar.gz *.pkg.tar.zst
 
