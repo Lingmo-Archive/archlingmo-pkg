@@ -8,48 +8,42 @@ permissions: write-all
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
-
+    runs-on: ubuntu-latest
+    container: docker.io/library/archlinux:latest
     steps:
     - name: Cache pacman packages
       id: cache-pacman
       uses: actions/cache@v4
       with:
-        path: pkg
+        path: /var/cache/pacman/pkg
         key: ${{ runner.os }}-pacman-${{ github.sha }}
         restore-keys: ${{ runner.os }}-pacman-
 
-    - name: Pull Docker image
-      run: docker pull archlinux
-      
-    - name: Run builder
+    - name: Build Packages
       run: |
-        docker run --rm --privileged -v $PWD/out:/out -v $PWD/pkg:/var/cache/pacman/pkg archlinux sh -c "
-          pacman-key --init
-          pacman-key --populate archlinux
-          pacman -Syu --noconfirm base-devel git
-          useradd -m builder
-          echo 'builder ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
-          git clone --depth 1 https://github.com/LingmoOS/archlingmo-pkg /archlingmo-pkg
-          chown -R builder /archlingmo-pkg
-          sudo -u builder sh -c 'cd /archlingmo-pkg/packages && ./build.sh'
-          cp /archlingmo-pkg/packages/outputs/* /out
-        "
+        pacman-key --init
+        pacman-key --populate archlinux
+        pacman -Syu --noconfirm base-devel git
+        useradd -m builder
+        echo 'builder ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/builder
+        git clone --depth 1 https://github.com/LingmoOS/archlingmo-pkg /archlingmo-pkg
+        chown -R builder /archlingmo-pkg
+        sudo -u builder sh -c 'cd /archlingmo-pkg/packages && ./build.sh'
 
     - name: List packages
       run: |
-        du -sh out
-        ls -lh out
+        du -ch /archlingmo-pkg/packages/outputs/*
 
     - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
         name: x86_64
         compression-level: 0
-        path: ./out/*
+        path: /archlingmo-pkg/packages/outputs/*
 
   upload:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    container: docker.io/library/archlinux:latest
     needs: build
     steps:
       - name: Checkout Repository
@@ -61,9 +55,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ~/repo
-
-      - name: Install pacman
-        run: sudo apt update && sudo apt install pacman-package-manager libarchive-tools
 
       - name: Build repository
         run: |
