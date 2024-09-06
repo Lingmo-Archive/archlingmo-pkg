@@ -34,37 +34,44 @@ jobs:
     - name: List packages
       run: du -ch /tmp/archlingmo-pkg/packages/outputs/*
 
-    - name: Checkout gh-pages
-      run: git clone --depth 1 --branch gh-pages https://github.com/LingmoOS/archlingmo-pkg /gh-pages
-
-    - name: Build repository
-      run: |
-        cd /gh-pages/x86_64
-        cp -r --update /tmp/archlingmo-pkg/packages/outputs/* .
-        repo-add lingmo.db.tar.gz *.pkg.tar.zst
-        cd ..
-        tar -cf /repo.tar .
-
-    - name: Upload repository
+    - name: Upload packages
       uses: actions/upload-artifact@v4
       with:
-        name: repo
+        name: x86_64
         compression-level: 0
-        path: /repo.tar
+        path: /tmp/archlingmo-pkg/packages/outputs/*
 
   upload:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
       - name: Download Artifact
         uses: actions/download-artifact@v4
+        with:
+          path: ~/repo
+
+      - name: Install pacman
+        run: sudo apt update && sudo apt install pacman-package-manager libarchive-tools
+
+      - name: Build repository
+        run: |
+          cp -r --update ~/repo/* .
+          ls -lah
+          ls -lah x86_64
+          pwd
+          for i in $(ls);do
+            [ -d $i ] && repo-add $i/lingmo.db.tar.gz $i/*.pkg.tar.zst
+          done
 
       - name: Commit and push changes
         run: |
-          tar -xf repo/repo.tar
-          rm -rf repo
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
           git add .
           git commit -m "Update: $(date --rfc-3339=seconds)"
           git push
