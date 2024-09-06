@@ -42,13 +42,15 @@ jobs:
         cd /gh-pages/x86_64
         cp -r --update /tmp/archlingmo-pkg/packages/outputs/* .
         repo-add lingmo.db.tar.gz *.pkg.tar.zst
+        cd ..
+        tar -cf /repo.tar .
 
     - name: Upload repository
       uses: actions/upload-artifact@v4
       with:
         name: repo
         compression-level: 0
-        path: /gh-pages
+        path: /repo.tar
 
   upload:
     runs-on: ubuntu-latest
@@ -62,6 +64,7 @@ jobs:
       - name: Commit and push changes
         run: |
           cd ~/repo
+          tar -xf repo.tar
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
