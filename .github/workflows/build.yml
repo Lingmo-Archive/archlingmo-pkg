@@ -58,13 +58,11 @@ jobs:
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v4
-        with:
-          path: ~/repo
 
       - name: Commit and push changes
         run: |
-          cd ~/repo
-          tar -xf repo.tar
+          tar -xf repo/repo.tar
+          rm -rf repo
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add .
