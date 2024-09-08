@@ -7,10 +7,12 @@ depends=(
     "qt5-quickcontrols2"
     "qt5-x11extras"
     "qt5-tools"
+    "qt5-graphicaleffects"
+    "LingmoUI"
 )
 makedepends=("cmake" "extra-cmake-modules" "make" "gcc" "pkgconf")
 pkgdesc="Terminal emulator using LingmoUI as interface style on LingmoOS."
-pkgrel=0
+pkgrel=1
 pkgver=1.9.9
 url="https://lingmo.org"
 license=("GPL")
